@@ -6,10 +6,10 @@ export const EVENT = {
   FINISH_LOAD: 'did-finish-load',
   STOP_LOAD: 'did-stop-loading',
   FAIL_LOAD: 'did-fail-load',
+  CLOSE: 'close',
   DESTROYED :'destroyed'
 }
 
-debugger;
 const eventList = Object.keys(EVENT).map((key) => {
   return EVENT[key]
 })

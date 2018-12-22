@@ -7,7 +7,6 @@ export const getRandomNumber = () => {
 export const isPDF = (url) => {
   return new Promise((resolve, reject) => {
     try {
-      debugger
         if ((/^(https|http):\/\//i).test(url)) {
           resolve(true)
         } else if ((/^file:\/\//i).test(url)) {
@@ -17,7 +16,7 @@ export const isPDF = (url) => {
           return resolve(isTypePDF(data))
         })
         .catch((err) => {
-          return reject(error)
+          return reject(err)
         })
       } else if ((/\.pdf$/i).test(url)) {
         readChunk(url, 0, 200)
@@ -25,12 +24,12 @@ export const isPDF = (url) => {
           return resolve(isTypePDF(data))
         })
         .catch((err) => {
-          return reject(error)
+          return reject(err)
         })
       }
       resolve(true)
-    } catch (error) {
-      reject(error)
+    } catch (err) {
+      reject(err)
     }
   })
 }
@@ -68,4 +67,17 @@ const isTypePDF = (buf) => {
     }
   }
   return true
+}
+
+const isTypeNode = (node) => {
+  if (typeof node === 'object' &&
+    typeof node.nodeName === 'string' &&
+    typeof node.nodeType === 'number') {
+    return true
+  }
+  return false
+}
+
+export const isInPage = (node) => {
+  return isTypeNode(node) ? ((node === document.body) ? false : document.body.contains(node)) : false
 }
