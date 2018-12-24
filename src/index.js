@@ -1,6 +1,5 @@
 import { getRandomNumber, isPDF, isInPage } from './util.js'
 import { getEvents, on, off, EVENT } from './domEvent.js'
-import { downloadURL } from './download.js'
 
 const handleReady = Symbol('handleReady')
 const handleStop = Symbol('handleStop')
@@ -68,22 +67,6 @@ class EpdfView {
           win.once('ready-to-show', () => {
             win.show()
             resolve(url)
-          })
-        })
-        .catch((err) => {
-          return reject(err)
-        })
-    })
-  }
-  download (win, newUrl = '', options = {}) {
-    return new Promise((resolve, reject) => {
-      if (!(win &&  win.webContents && typeof win.webContents.downloadURL === 'function')) {
-        return reject(new Error('In need of a valid win'))
-      }
-      checkNewUrl.call(this, newUrl)
-        .then((url) => {
-          downloadURL(win, url, options, (err, item) => {
-            err ? reject(err) : resolve(item)
           })
         })
         .catch((err) => {

@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   entry:  path.resolve(__dirname, './src/index.js'),
   output: {
     libraryTarget: 'umd',
