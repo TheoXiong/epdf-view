@@ -1,18 +1,27 @@
 {
   "name": "epdf-view",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "View PDF file in electron application",
   "main": "dist/epdf-view.min.js",
   "scripts": {
     "build": "webpack --progress --mode=production"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheoXiong/epdf-view.git"
+  },
   "keywords": [
     "pdf",
     "electron",
-    "view"
+    "view",
+    "download"
   ],
   "author": "TheoXiong",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TheoXiong/epdf-view/issues"
+  },
+  "homepage": "https://github.com/TheoXiong/epdf-view#readme",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",

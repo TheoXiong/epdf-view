@@ -1,6 +1,6 @@
-import { remote } from 'electron'
 import { getRandomNumber, isPDF, isInPage } from './util.js'
-import { getEvents, on, off, EVENT } from './event.js'
+import { getEvents, on, off, EVENT } from './domEvent.js'
+import { downloadURL } from './download.js'
 
 const handleReady = Symbol('handleReady')
 const handleStop = Symbol('handleStop')
@@ -53,19 +53,43 @@ class EpdfView {
       this.status.destroyed = true
     }
   }
-  open (newUrl = '', options = {}) {
-    checkNewUrl.call(this, newUrl)
-      .then((url) => {
-        console.log('extendOpts(options): ', extendOpts(options))
-
-        const BrowserWindow = remote.BrowserWindow
-        let win = new BrowserWindow(extendOpts(options))
-        win.loadURL(url)
-        win.show()
-      })
-      .catch((err) => {
-        console.error('[EpdfView] open: ', err)
-      })
+  open (BrowserWindow, newUrl = '', options = {}) {
+    return new Promise((resolve, reject) => {
+      if (!(BrowserWindow && typeof BrowserWindow === 'function' && typeof BrowserWindow.getFocusedWindow === 'function')) {
+        return reject(new Error('In need of a valid BrowserWindow'))
+      }
+      checkNewUrl.call(this, newUrl)
+        .then((url) => {
+          let win = new BrowserWindow(extendOpts(options))
+          win.loadURL(url)
+          win.on('close', () => {
+            win = null
+          })
+          win.once('ready-to-show', () => {
+            win.show()
+            resolve(url)
+          })
+        })
+        .catch((err) => {
+          return reject(err)
+        })
+    })
+  }
+  download (win, newUrl = '', options = {}) {
+    return new Promise((resolve, reject) => {
+      if (!(win &&  win.webContents && typeof win.webContents.downloadURL === 'function')) {
+        return reject(new Error('In need of a valid win'))
+      }
+      checkNewUrl.call(this, newUrl)
+        .then((url) => {
+          downloadURL(win, url, options, (err, item) => {
+            err ? reject(err) : resolve(item)
+          })
+        })
+        .catch((err) => {
+          return reject(err)
+        })
+    })
   }
 }
 
@@ -174,7 +198,6 @@ function checkNewUrl (newUrl) {
           }
         })
         .catch((err) => {
-          console.error(err)
           return reject(new Error('[EpdfView] checkNewUrl(0002): in need of a valid URL !'))
         })
     } else {
@@ -197,7 +220,8 @@ function extendOpts (opts) {
   const targetLeve2 = {
     webPreferences: {
       nodeIntegration: false,
-      plugins: true
+      plugins: true,
+      devTools: false
     }
   }
   if (!opts || typeof opts !== 'object') {
@@ -205,8 +229,9 @@ function extendOpts (opts) {
   }
   Object.assign(opts, targetLeve1)
   if (typeof opts.webPreferences === 'object' && opts.webPreferences) {
-    opts.webPreferences.nodeIntegration = false
-    opts.webPreferences.plugins = true
+    Object.keys(targetLeve2.webPreferences).forEach((key) => {
+      opts.webPreferences[key] = targetLeve2.webPreferences[key]
+    })
   } else {
     Object.assign(opts, targetLeve2)
   }
