@@ -1,6 +1,6 @@
 {
   "name": "epdf-view",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "View PDF file in electron application",
   "main": "dist/epdf-view.min.js",
   "scripts": {
@@ -13,8 +13,7 @@
   "keywords": [
     "pdf",
     "electron",
-    "view",
-    "download"
+    "view"
   ],
   "author": "TheoXiong",
   "license": "MIT",

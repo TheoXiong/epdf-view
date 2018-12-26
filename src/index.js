@@ -1,4 +1,4 @@
-import { getRandomNumber, isPDF, isInPage } from './util.js'
+import { getRandomNumber, isPDF, isInPage, waitingAsync } from './util.js'
 import { getEvents, on, off, EVENT } from './domEvent.js'
 
 const handleReady = Symbol('handleReady')
@@ -28,18 +28,45 @@ class EpdfView {
     }
   }
   reload () {
-    if (this.webview && isInPage(this.webview) && this.hasLoaded() && typeof this.webview.reload === 'function') {
-      clearStatus.call(this)
-      this.webview.reload()
-    }
-    return this
+    return new Promise((resolve, reject) => {
+      if (this.webview && isInPage(this.webview) && this.hasLoaded() && typeof this.webview.reload === 'function') {
+        clearStatus.call(this)
+        this.webview.reload()
+        waitingAsync(50, 30 * 1000, () => { return this.status.domReady })
+          .then((cost) => {
+            resolve(cost)
+          })
+          .catch((err) => {
+            reject(err)
+          })
+      } else {
+        reject(new Error('Can not reload in current status.'))
+      }
+    })
   }
-  loadURL () {
-    if (this.webview && typeof this.webview.loadURL === 'function') {
-      clearStatus.call(this)
-      this.webview.loadURL()
-    }
-    return this
+  loadURL (newUrl = '') {
+    return new Promise((resolve, reject) => {
+      if (this.webview && isInPage(this.webview) && this.hasLoaded() && typeof this.webview.loadURL === 'function') {
+        checkNewUrl.call(this, newUrl)
+          .then((url) => {
+            clearStatus.call(this)
+            this.webview.loadURL(url)
+            waitingAsync(50, 30 * 1000, () => { return this.status.domReady })
+              .then((cost) => {
+                resolve(cost)
+              })
+              .catch((err) => {
+                reject(err)
+              })
+          })
+          .catch((err) => {
+            return reject(err)
+          })
+      } else {
+        reject(new Error('Can not loadURL in current status.'))
+      }
+    })
+    
   }
   destroy () {
     if (this.webview && this.status.Loaded && !this.status.destroyed) {

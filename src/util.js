@@ -81,3 +81,22 @@ const isTypeNode = (node) => {
 export const isInPage = (node) => {
   return isTypeNode(node) ? ((node === document.body) ? false : document.body.contains(node)) : false
 }
+
+export const waitingAsync = (step, timeout = 0, check = () => {}) => {
+  return new Promise((resolve, reject) => {
+    let stepTime = typeof step === 'number' && step > 0 ? step : 10
+    let cnt = 0
+    let totalCnt = Number(timeout) / stepTime
+    let timer = setInterval(() => {
+          cnt++
+          if (check()) {
+            clearInterval(timer)
+            return resolve(cnt * stepTime)
+          }
+          if (cnt > totalCnt) {
+            clearInterval(timer)
+            return reject(new Error('timeout'))
+          }
+    }, stepTime)
+  })
+}
