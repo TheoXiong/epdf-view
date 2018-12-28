@@ -10,24 +10,25 @@ export const isPDF = (url) => {
         if ((/^(https|http):\/\//i).test(url)) {
           resolve(true)
         } else if ((/^file:\/\//i).test(url)) {
-        let fileUrl = new URL(url)
-        readChunk(fileUrl, 0, 200)
-        .then((data) => {
-          return resolve(isTypePDF(data))
-        })
-        .catch((err) => {
-          return reject(err)
-        })
-      } else if ((/\.pdf$/i).test(url)) {
-        readChunk(url, 0, 200)
-        .then((data) => {
-          return resolve(isTypePDF(data))
-        })
-        .catch((err) => {
-          return reject(err)
-        })
-      }
-      resolve(true)
+          let fileUrl = new URL(url)
+          readChunk(fileUrl, 0, 200)
+            .then((data) => {
+              return resolve(isTypePDF(data))
+            })
+            .catch((err) => {
+              return reject(err)
+            })
+        } else if ((/\.pdf$/i).test(url)) {
+          readChunk(url, 0, 200)
+            .then((data) => {
+              return resolve(isTypePDF(data))
+            })
+            .catch((err) => {
+              return reject(err)
+            })
+        } else {
+          resolve(false)
+        }
     } catch (err) {
       reject(err)
     }

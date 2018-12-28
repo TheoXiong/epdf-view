@@ -5,14 +5,16 @@ const handleReady = Symbol('handleReady')
 const handleStop = Symbol('handleStop')
 const handleFail = Symbol('handleFail')
 const handleDestroy = Symbol('handleDestroy')
+const handleCallback = Symbol('handleCallback')
 
 class EpdfView {
-  constructor (url = '', containerId = '', options = {}) {
+  constructor (url = '', containerId = '', options = {}, cb = () => {}) {
     this.containerId = containerId
     this.container = document.getElementById(containerId)
     this.url = typeof url === 'string' ? url : ''
     this.isValidURL = false
     this.options = typeof options === 'object' ? options : {}
+    this[handleCallback] = cb
     this.webview = null
     this.webContents = null
     this.status = {}
@@ -44,11 +46,12 @@ class EpdfView {
       }
     })
   }
-  loadURL (newUrl = '') {
+  loadURL (newUrl = '', isUpdate = false) {
     return new Promise((resolve, reject) => {
       if (this.webview && isInPage(this.webview) && this.hasLoaded() && typeof this.webview.loadURL === 'function') {
         checkNewUrl.call(this, newUrl)
           .then((url) => {
+            isUpdate ? this.url = url: ''
             clearStatus.call(this)
             this.webview.loadURL(url)
             waitingAsync(50, 30 * 1000, () => { return this.status.domReady })
@@ -110,11 +113,13 @@ function load () {
         this.isValidURL = true
         render.call(this)
       } else {
-        console.error('[EpdfView] URL is invalid: ')
+        console.error(`[EpdfView] The URL(${this.url}) is invalid: `)
+        this[handleCallback](new Error(`The URL(${this.url}) is invalid`))
       }
     })
     .catch((err) => {
-      console.error('[EpdfView] URL is invalid: ', err)
+      console.error(`[EpdfView] The URL(${this.url}) is invalid: `, err)
+      this[handleCallback](err)
     })
 }
 
@@ -134,8 +139,10 @@ function render () {
 
     bind.call(this)
     this.container.appendChild(webview)
+    this[handleCallback](null, 'Successed to creat webview')
   } else {
     console.log(`The container(${this.containerId}) is invalid !`)
+    this[handleCallback](new Error(`The container(${this.containerId}) is invalid !`))
   }
 }
 
