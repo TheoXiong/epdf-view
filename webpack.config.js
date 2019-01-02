@@ -18,7 +18,5 @@ module.exports = {
       }
     ]
   },
-  node: {
-    fs: 'empty'
-  }
+  externals: ['fs', 'url', 'process']
 }

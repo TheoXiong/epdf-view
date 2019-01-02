@@ -215,6 +215,7 @@ function checkNewUrl (newUrl) {
           }
         })
         .catch((err) => {
+          console.error('err:', err)
           return reject(new Error('[EpdfView] checkNewUrl(0002): in need of a valid URL !'))
         })
     } else {

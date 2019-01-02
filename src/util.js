@@ -1,16 +1,35 @@
 import fs from 'fs'
+import process from 'process'
+
+let url = {}
+if (typeof require('url') === 'object' && typeof require('url').fileURLToPath === 'function') {
+  url = require('url')
+} else {
+  url.fileURLToPath = (urlStr) => {
+    if (typeof urlStr !== 'string' || !(/^file:\/\//i).test(urlStr)) throw new Error('In need of a file url string') 
+    try {
+      if ((/^file:\/\/\/[c-z]:/i).test(urlStr) && process.platform === 'win32') {
+        return urlStr.replace(/^file:\/\/\//i, '')
+      } else {
+        return urlStr.replace(/^file:\/\//i, '')
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+}
 
 export const getRandomNumber = () => {
   return new Date().getTime() + parseInt(Math.random() * 1000000)
 }
 
-export const isPDF = (url) => {
+export const isPDF = (pUrl) => {
   return new Promise((resolve, reject) => {
     try {
-        if ((/^(https|http):\/\//i).test(url)) {
+        if ((/^(https|http):\/\//i).test(pUrl)) {
           resolve(true)
-        } else if ((/^file:\/\//i).test(url)) {
-          let fileUrl = new URL(url)
+        } else if ((/^file:\/\//i).test(pUrl)) {
+          let fileUrl = url.fileURLToPath(pUrl)
           readChunk(fileUrl, 0, 200)
             .then((data) => {
               return resolve(isTypePDF(data))
@@ -18,8 +37,8 @@ export const isPDF = (url) => {
             .catch((err) => {
               return reject(err)
             })
-        } else if ((/\.pdf$/i).test(url)) {
-          readChunk(url, 0, 200)
+        } else if ((/\.pdf$/i).test(pUrl)) {
+          readChunk(pUrl, 0, 200)
             .then((data) => {
               return resolve(isTypePDF(data))
             })
