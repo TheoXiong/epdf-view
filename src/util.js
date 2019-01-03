@@ -90,7 +90,8 @@ const isTypePDF = (buf) => {
 }
 
 const isTypeNode = (node) => {
-  if (typeof node === 'object' &&
+  if (node &&
+    typeof node === 'object' &&
     typeof node.nodeName === 'string' &&
     typeof node.nodeType === 'number') {
     return true

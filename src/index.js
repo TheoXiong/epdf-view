@@ -167,7 +167,7 @@ function creatHandler () {
 }
 
 function handleWebContents () {
-  if (this.webview && typeof this.webview.getWebContents === 'function') {
+  if (this.webview && typeof this.webview.getWebContents === 'function' && !this.webContents ) {
     this.webContents = this.webview.getWebContents()
     this.webContents.on('destroyed', this[handleDestroy])
   }

@@ -1,6 +1,6 @@
 {
   "name": "epdf-view",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "View PDF file in electron application",
   "main": "dist/epdf-view.min.js",
   "scripts": {
